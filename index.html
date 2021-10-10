@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <!-- <meta http-equiv="Content-Security-Policy" content="img-src 'self' http://xxxx 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; ws://localhost:*/socket.io/; default-src 'self' ws://localhost:*/socket.io/; script-src 'self' ws://localhost:*/socket.io/"> -->
+    <!-- <meta http-equiv="X-Content-Security-Policy" content="img-src 'self' http://xxxx 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; default-src 'self' ws://localhost:*/socket.io/; script-src 'self' ws://localhost:*/socket.io/"> -->
+    <title>Hello World!</title>
+    <style>
+        .trans {
+            transition: 500ms ease-in-out;
+        }
+        
+        * {
+            outline: none;
+            user-select: none;
+            font-family: Poppins, sans-serif;
+        }
+        
+        body {
+            overflow: hidden;
+            background-color: rgb(10, 10, 10);
+        }
+        
+        #container {
+            display: flex;
+            justify-content: center;
+            width: 100vw;
+            align-items: flex-end;
+            height: 97.5vh;
+        }
+        
+        #find-match {
+            font-family: inherit;
+            position: absolute;
+            color: white;
+            background-color: rgba(0, 0, 0, 0);
+            border: 2px solid white;
+            width: 18vw;
+            height: 5vw;
+            font-size: 1.4vw;
+            font-weight: 700;
+            letter-spacing: 0.5vw;
+            background-size: 200% 200%;
+            background-image: linear-gradient(to top, lightgreen 50%, transparent 50%);
+            cursor: pointer;
+            /* margin: 0 1vw 0; */
+            pointer-events: auto;
+        }
+        
+        #find-match:hover {
+            color: black;
+            background-image: linear-gradient(to top, lightgreen 51%, transparent 50%);
+            background-position: 0 100%;
+        }
+        
+        #cancel {
+            display: none;
+            opacity: 0;
+            font-family: inherit;
+            position: absolute;
+            color: white;
+            background-color: rgba(0, 0, 0, 0);
+            border: 2px solid white;
+            width: 5vw;
+            height: 5vw;
+            font-size: 1.4vw;
+            font-weight: bold;
+            /* letter-spacing: 0.5vw; */
+            background-size: 200% 200%;
+            background-image: linear-gradient(to top, red 50%, transparent 50%);
+            cursor: pointer;
+        }
+        
+        .player {
+            text-align: center;
+            align-self: center;
+            display: block;
+            color: white;
+            margin: 0.5vw;
+            font-size: 1vw;
+            padding: 1vw;
+            width: 10vw;
+            height: 20vw;
+            float: left;
+            background-color: rgba(0, 0, 0, 0);
+            border: 2px solid white;
+            background-size: 200% 200%;
+            background-image: linear-gradient(to top, #ffffff 50%, transparent 50%);
+        }
+        
+        legend {
+            font-weight: 500;
+            font-size: 1.5vw;
+        }
+        
+        fieldset p {
+            margin-top: -0.5vw;
+        }
+        
+        #cancel:hover {
+            color: black;
+            background-image: linear-gradient(to top, red 51%, transparent 50%);
+            background-position: 0 100%;
+        }
+        
+        img {
+            border-radius: 50%;
+            /* try this */
+            width: 4vw;
+            height: 4vw;
+            align-self: flex-end;
+            justify-self: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <!-- <fieldset class="player">
+            <legend>yurms</legend>
+        </fieldset>
+        <fieldset class="player">
+            <legend>yurms</legend>
+            <img src="assets/icons/" alt="icon">
+        </fieldset> -->
+        <input type="button" class="trans" value="✕" id="cancel">
+        <input type="button" class="trans" value="FIND MATCH" id="find-match">
+    </div>
+
+
+    <!-- You can also require other files to run in this process -->
+    <script src="./renderer.js"></script>
+</body>
+
+</html>

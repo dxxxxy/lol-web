@@ -3,27 +3,6 @@ const { app, BrowserWindow } = require('electron')
 const path = require('path')
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0
 
-process.env.SOCKET_PORT = 18092;
-
-// const io = require('socket.io-client');
-
-// var socket = io("http://localhost:18091");
-
-// socket.on('welcome', () => {
-//   console.log('welcome received'); // displayed
-//   socket.emit('test')
-// });
-// socket.on('error', (e) => {
-//   console.log(e); // not displayed
-// });
-// socket.on('ok', () => {
-//   console.log("OK received"); // not displayed
-// });
-// socket.on('connect', () => {
-//   console.log("connected"); // displayed
-//   socket.emit('test');
-// });
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow

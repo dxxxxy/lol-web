@@ -9,7 +9,7 @@
     <title>Hello World!</title>
     <style>
         .trans {
-            transition: 500ms ease-in-out;
+            transition: background 500ms ease-in-out, color 500ms ease-in-out;
         }
         
         * {
@@ -36,7 +36,7 @@
             position: absolute;
             color: white;
             background-color: rgba(0, 0, 0, 0);
-            border: 2px solid white;
+            border: 0.2vw solid white;
             width: 18vw;
             height: 5vw;
             font-size: 1.4vw;
@@ -45,7 +45,6 @@
             background-size: 200% 200%;
             background-image: linear-gradient(to top, lightgreen 50%, transparent 50%);
             cursor: pointer;
-            /* margin: 0 1vw 0; */
             pointer-events: auto;
         }
         
@@ -62,7 +61,7 @@
             position: absolute;
             color: white;
             background-color: rgba(0, 0, 0, 0);
-            border: 2px solid white;
+            border: 0.2vw solid white;
             width: 5vw;
             height: 5vw;
             font-size: 1.4vw;
@@ -81,11 +80,11 @@
             margin: 0.5vw;
             font-size: 1vw;
             padding: 1vw;
-            width: 10vw;
-            height: 20vw;
+            width: 12vw;
+            height: 25vw;
             float: left;
             background-color: rgba(0, 0, 0, 0);
-            border: 2px solid white;
+            border: 0.2vw solid white;
             background-size: 200% 200%;
             background-image: linear-gradient(to top, #ffffff 50%, transparent 50%);
         }
@@ -107,28 +106,43 @@
         
         img {
             border-radius: 50%;
-            /* try this */
-            width: 4vw;
-            height: 4vw;
+            width: 6vw;
+            padding: 0.4vw;
+            height: 6vw;
             align-self: flex-end;
             justify-self: center;
+        }
+        
+        #window {
+            display: flex;
+            justify-content: center;
+            width: 100vw;
+            align-items: center;
+            height: 97.5vh;
+        }
+        
+        #waiting {
+            color: white;
+            font-size: 5vw;
+        }
+        
+        .pos {
+            filter: invert(0%) sepia(44%) saturate(0%) hue-rotate(205deg) brightness(99%) contrast(104%);
+            width: 5vw;
+            height: 5vw;
         }
     </style>
 </head>
 
 <body>
-    <div id="container">
-        <!-- <fieldset class="player">
-            <legend>yurms</legend>
-        </fieldset>
-        <fieldset class="player">
-            <legend>yurms</legend>
-            <img src="assets/icons/" alt="icon">
-        </fieldset> -->
-        <input type="button" class="trans" value="✕" id="cancel">
-        <input type="button" class="trans" value="FIND MATCH" id="find-match">
+    <div id="window">
+        <p id="waiting">Waiting for League Client</p>
+        <div id="container">
+            <img class="pos" src="https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/svg/position-middle.svg" alt="">
+            <input type="button" class="trans" value="✕" id="cancel">
+            <input type="button" class="trans" value="FIND MATCH" id="find-match">
+        </div>
     </div>
-
 
     <!-- You can also require other files to run in this process -->
     <script src="./renderer.js"></script>

@@ -68,15 +68,64 @@ const put = (endpoint, body) => {
     })
 }
 
-const createPlayer = (name, icon) => {
+
+//replace everything with 
+
+// get("/lol-lobby/v2/lobby/members").then(res => {
+//     Object.keys(res).forEach(player => {
+//         console.log(res[player])
+//     })
+// })
+
+/*
+{
+  allowedChangeActivity: true,
+  allowedInviteOthers: true,
+  allowedKickOthers: true,
+  allowedStartActivity: true,
+  allowedToggleInvite: true,
+  autoFillEligible: false,
+  autoFillProtectedForPromos: false,
+  autoFillProtectedForSoloing: false,
+  autoFillProtectedForStreaking: true,
+  botChampionId: 0,
+  botDifficulty: 'NONE',
+  botId: '',
+  firstPositionPreference: 'UTILITY',
+  isBot: false,
+  isLeader: true,
+  isSpectator: false,
+  puuid: '8740b9d7-8b79-584d-b8ea-83a4a3d407bd',
+  ready: true,
+  secondPositionPreference: 'MIDDLE',
+  showGhostedBanner: false,
+  summonerIconId: 1637,
+  summonerId: 2713467472864992,
+  summonerInternalName: 'yurms',
+  summonerLevel: 39,
+  summonerName: 'yurms',
+  teamId: 0
+}
+
+*/
+const createPlayer = (name, icon, id, lvl, percent) => {
     var fieldset = document.createElement("fieldset")
     var legend = document.createElement("legend")
     var img = document.createElement("img")
-    img.src = `http://ddragon.leagueoflegends.com/cdn/10.18.1/img/profileicon/${icon}.png`
+    var p = document.createElement("p")
+    p.innerHTML = lvl
+    img.src = `https://raw.communitydragon.org/11.20/game/assets/ux/summonericons/profileicon${icon}.png`
+    img.className = "a"
+    img.style.backgroundColor = "rgba(128, 128, 128, 0.445)"
+    img.style.backgroundImage = `linear-gradient(0deg, #65C178 ${percent}%, rgba(0, 0, 0, 0) ${percent}%)`
     legend.innerHTML = name
+    p.style.fontSize = "1.5vw"
+    p.style.fontWeight = 500
     fieldset.appendChild(legend)
     fieldset.appendChild(img)
+    fieldset.appendChild(p)
     fieldset.className = "player"
+    fieldset.id = id
     document.getElementById("container").appendChild(fieldset)
 }
 
@@ -93,10 +142,16 @@ connector.on('connect', (data) => {
                 if (!lobbyIds.includes(res.players[player].summonerId)) {
                     get(`/lol-summoner/v1/summoners/${res.players[player].summonerId}`).then(res2 => {
                         lobbyIds.push(res.players[player].summonerId)
-                        createPlayer(res.players[player].displayName, res2.profileIconId)
+                        createPlayer((res.players[player].role == "LEADER" ? (res.players[player].displayName + "👑") : res.players[player].displayName), res2.profileIconId, res.players[player].summonerId, res2.summonerLevel, res2.percentCompleteForNextLevel)
                     })
                 }
             })
+            // lobbyIds.forEach(id => {
+            //     if (!Object.keys(res.players).includes(id)) {
+            //         lobbyIds.slice(lobbyIds.indexOf(id), 1)
+            //         document.getElementById(id).remove()
+            //     }
+            // })
         })
         
     }, 1000) 
@@ -152,6 +207,12 @@ connector.on('connect', (data) => {
     //     targetRegion: 'na1',
     //     type: 'chat',
     //     unreadMessageCount: 0
+    document.getElementById("container").style.display = "flex"
+    document.getElementById("waiting").style.display = "none"
+    const node = document.getElementById("window")
+    node.replaceWith(...node.childNodes);
+    document.getElementById("waiting").remove()
+
     document.getElementById("find-match").addEventListener("click", e => {
         console.log("trying")
         post("/lol-lobby/v2/lobby/matchmaking/search").then(res => {
@@ -183,6 +244,8 @@ connector.on('connect', (data) => {
 connector.start();
 
 window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById("container").style.display = "none"
+
     const replaceText = (selector, text) => {
         const element = document.getElementById(selector)
         if (element) element.innerText = text

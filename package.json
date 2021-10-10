@@ -1,13 +1,10 @@
 {
-    "name": "electron-sockets",
+    "name": "lol-web",
     "version": "1.0.0",
-    "description": "Electron socket.io example",
     "main": "main.js",
     "scripts": {
         "start": "electron ."
     },
-    "repository": "https://github.com/clytras/electron-sockets",
-    "author": "",
     "devDependencies": {
         "electron": "^9.4.0"
     },

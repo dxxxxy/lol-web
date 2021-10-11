@@ -8,33 +8,34 @@ let auth = {}
 
 const get = (endpoint) => {
         return new Promise(function(resolve, reject) {
-                    resolve(fetch(`${auth.protocol}://${auth.address}:${auth.port}${endpoint}`, {
-                                    headers: {
-                                        'Accept': "application/json",
-                                        'Authorization': `Basic ${Buffer.from(`${auth.username}:${auth.password}`).toString("base64")}`
+            resolve(fetch(`${auth.protocol}://${auth.address}:${auth.port}${endpoint}`, {
+                headers: {
+                    'Accept': "application/json",
+                    'Authorization': `Basic ${Buffer.from(`${auth.username}:${auth.password}`).toString("base64")}`
                 }
-            })
-            .then(res => res.json())
-            .then(res => {
-                return res
-            }))
+        })
+        .then(res => res.text())
+        .then(res => {
+            return res === "" ? {} : JSON.parse(res);
+        }))
     })
 }
 
 const post = (endpoint, body) => {
     return new Promise(function(resolve, reject) {
         resolve(fetch(`${auth.protocol}://${auth.address}:${auth.port}${endpoint}`, {
-                method: 'POST',
-                body: JSON.stringify(body),
-                headers: {
-                    'Content-type': 'application/json',
-                    'Authorization': `Basic ${Buffer.from(`${auth.username}:${auth.password}`).toString("base64")}`
-                }
-            })
-            .then(res => res.json())
-            .then(res => {
-                return res
-            }))
+            method: 'POST',
+            body: JSON.stringify(body),
+            headers: {
+                'Content-type': 'application/json',
+                'Authorization': `Basic ${Buffer.from(`${auth.username}:${auth.password}`).toString("base64")}`
+            }
+        })
+        // .then(res => res.text())
+        // .then(res => {
+        //     return res === "" ? {} : JSON.parse(res);
+        // })
+        )
     })
 }
 
@@ -46,24 +47,29 @@ const del = (endpoint) => {
                 'Content-type': 'application/json',
                 'Authorization': `Basic ${Buffer.from(`${auth.username}:${auth.password}`).toString("base64")}`
             }
-        }))
+        })
+        // .then(res => res.text())
+        // .then(res => {
+        //     return res === "" ? {} : JSON.parse(res);
+        // })
+        )
     })
 }
 
 const put = (endpoint, body) => {
     return new Promise(function(resolve, reject) {
         resolve(fetch(`${auth.protocol}://${auth.address}:${auth.port}${endpoint}`, {
-                method: 'PUT',
-                body: JSON.stringify(body),
-                headers: {
-                    'Content-type': 'application/json',
-                    'Authorization': `Basic ${Buffer.from(`${auth.username}:${auth.password}`).toString("base64")}`
-                }
-            })
-            .then(res => res.json())
-            .then(res => {
-                return res
-            }))
+            method: 'PUT',
+            body: JSON.stringify(body),
+            headers: {
+                'Content-type': 'application/json',
+                'Authorization': `Basic ${Buffer.from(`${auth.username}:${auth.password}`).toString("base64")}`
+            }
+        })
+        .then(res => res.text())
+        .then(res => {
+            return res === "" ? {} : JSON.parse(res);
+        }))
     })
 }
 
@@ -97,6 +103,30 @@ const put = (endpoint, body) => {
   teamId: 0
 }
 */
+let t, j, m, a, s
+let roles = []
+
+const positionRoles = (first, second) => {
+    roles.forEach(e => {
+        if (e.id != first && e.id != second) {
+            e.style.display = "none"
+        }
+        if (e.id == first) {
+            document.getElementById("lane1").appendChild(e)
+            e.style.display = "inline-block"
+        }
+        if (e.id == second) {
+            document.getElementById("lane2").appendChild(e)
+            e.style.display = "inline-block"
+        }
+    })
+    // roles.forEach(e => {
+    //     if (e.id == second) {
+    //         document.getElementById("container").appendChild(e)
+    //         e.style.display = "block"
+    //     }
+    // })
+}
 
 const createPlayer = (name, icon, id, lvl, percent) => {
     var fieldset = document.createElement("fieldset")
@@ -104,50 +134,143 @@ const createPlayer = (name, icon, id, lvl, percent) => {
     var img = document.createElement("img")
     var border = document.createElement("img")
     var p = document.createElement("p")
+    var lane1 = document.createElement("div")
+    var lane2 = document.createElement("div")
+
+    lane1.className = "lane"
+    lane1.id = "lane1"
+
+    lane2.className = "lane"
+    lane2.id = "lane2"
+
     p.innerHTML = lvl
+
     border.src = `https://raw.communitydragon.org/11.20/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/prestigeborders/theme-${Math.ceil(lvl/25)}-border.png`
     border.className = "b"
+
     img.src = `https://raw.communitydragon.org/11.20/game/assets/ux/summonericons/profileicon${icon}.png`
     img.className = "a"
     img.style.backgroundColor = "rgba(128, 128, 128, 0.445)"
     img.style.backgroundImage = `linear-gradient(0deg, #65C178 ${percent}%, rgba(0, 0, 0, 0) ${percent}%)`
+
     legend.innerHTML = name
+
     fieldset.appendChild(legend)
     fieldset.appendChild(img)
     fieldset.appendChild(border)
     fieldset.appendChild(p)
+    fieldset.appendChild(lane1)
+    fieldset.appendChild(lane2)
+
     fieldset.className = "player"
     fieldset.id = id
+
     document.getElementById("container").appendChild(fieldset)
 }
 
 let lobbyIds = []
 let riotIds = []
 
+const mainMenu = () => {
+    var sr = document.createElement("img")
+    var ar = document.createElement("img")
+    var tt = document.createElement("img")
+    var sp = document.createElement("img")
+
+    sr.src = "https://raw.communitydragon.org/11.20/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/classic_sru/img/game-select-icon-default.png"
+    ar.src = "https://raw.communitydragon.org/11.20/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/aram/img/game-select-icon-default.png"
+    tt.src = "https://raw.communitydragon.org/11.20/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/tft/img/game-select-icon-default.png"
+    sp.src = "https://raw.communitydragon.org/11.20/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/shared/img/icon-rgm-empty.png"
+
+    sr.className = "game"
+    ar.className = "game"
+    tt.className = "game"
+    sp.className = "game"
+
+    sr.id = "sr"
+    ar.id = "ar"
+    tt.id = "tt"
+    sp.id = "sp"
+
+    document.getElementById("container").appendChild(sr)
+    document.getElementById("container").appendChild(ar)
+    document.getElementById("container").appendChild(tt)
+    document.getElementById("container").appendChild(sp)
+}
+
+let menu = false
+
 connector.on('connect', (data) => {
     console.log(data)
     auth = data
 
-    //lobby event
-    setInterval(() => {
-        
-        get("/lol-lobby/v2/lobby/members").then(res => {
-            lobbyIds.forEach(id => {
-                if (!riotIds.includes(id)) {
-                    lobbyIds.slice(lobbyIds.indexOf(id), 1)
-                    document.getElementById(id).remove()
+    let lobby = setInterval(() => {
+        get("/lol-lobby/v2/lobby").then(res => {
+            if (res.httpStatus == 404) {
+                if (!menu) {
+                    mainMenu()
+                    lobbyIds.length = 0
+                    riotIds.length = 0
+                    document.getElementById("find-match").style.display = "none"
+                    document.querySelectorAll(".player").forEach(e => { e.remove() })
                 }
-            })
-            riotIds.length = 0
-            Object.keys(res).forEach(async player => {
-                riotIds.push(res[player].summonerId)
-                if (lobbyIds.includes(res[player].summonerId)) return
-                lobbyIds.push(res[player].summonerId)
-                let percent = await get(`/lol-summoner/v1/summoners/${res[player].summonerId}`).then(res2 => res2.percentCompleteForNextLevel)
-                createPlayer(res[player].isLeader ? res[player].summonerName + "👑" : res[player].summonerName, res[player].summonerIconId, res[player].summonerId, res[player].summonerLevel, percent)
+                return menu = true
+            } 
+            get("/lol-lobby/v2/lobby/members").then(res => {
+                if (menu) {
+                    document.getElementById("find-match").style.display = "block"
+                }
+                
+                menu = false
+                
+                document.querySelectorAll(".game").forEach(e => { e.remove() })
+                lobbyIds.forEach(id => {
+                    if (!riotIds.includes(id)) {
+                        lobbyIds.slice(lobbyIds.indexOf(id), 1)
+                        document.getElementById(id).remove()
+                    }
+                })
+                riotIds.length = 0
+                Object.keys(res).forEach(async player => {
+                    
+                    riotIds.push(res[player].summonerId)
+                    if (lobbyIds.includes(res[player].summonerId)) return
+                    lobbyIds.push(res[player].summonerId)
+                    let percent = await get(`/lol-summoner/v1/summoners/${res[player].summonerId}`).then(res2 => res2.percentCompleteForNextLevel)
+                    createPlayer(res[player].isLeader ? res[player].summonerName + "👑" : res[player].summonerName, res[player].summonerIconId, res[player].summonerId, res[player].summonerLevel, percent)
+                    positionRoles(res[player].firstPositionPreference, res[player].secondPositionPreference)
+                })
             })
         })
-    }, 1000) 
+        
+    }, 1000)
+    
+    // init roles
+    t = document.createElement("img")
+    j = document.createElement("img")
+    m = document.createElement("img")
+    a = document.createElement("img")
+    s = document.createElement("img")
+
+    t.src = "https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/svg/position-top.svg"
+    j.src = "https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/svg/position-jungle.svg"
+    m.src = "https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/svg/position-middle.svg"
+    a.src = "https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/svg/position-bottom.svg"
+    s.src = "https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/svg/position-utility.svg"
+
+    t.id = "TOP"
+    j.id = "JUNGLE"
+    m.id = "MIDDLE"
+    a.id = "BOTTOM"
+    s.id = "UTILITY"
+
+    t.className = "pos"
+    j.className = "pos"
+    m.className = "pos"
+    a.className = "pos"
+    s.className = "pos"
+
+    roles = [t, j, m, a, s]
 
     document.getElementById("container").style.display = "flex"
     document.getElementById("waiting").style.display = "none"
@@ -156,27 +279,29 @@ connector.on('connect', (data) => {
     document.getElementById("waiting").remove()
 
     document.getElementById("find-match").addEventListener("click", e => {
-        console.log("trying")
         post("/lol-lobby/v2/lobby/matchmaking/search").then(res => {
-            console.log(res)
+            // console.log(res)
+            if (!stat(res)) return
+            console.log("bruh")
+            document.getElementById("cancel").style.display = "block"
+            document.getElementById("find-match").style.display = "none"
         })
-        document.getElementById("cancel").style.display = "block"
-        document.getElementById("cancel").style.opacity = 1
-        document.getElementById("find-match").style.display = "none"
-        document.getElementById("find-match").style.opacity = 0
     })
 
     document.getElementById("cancel").addEventListener("click", e => {
-        console.log("trying2")
         del("/lol-lobby/v2/lobby/matchmaking/search").then(res => {
-            console.log(res)
+            // console.log(res)
+            if (!stat(res)) return
+            document.getElementById("find-match").style.display = "block"
+            document.getElementById("cancel").style.display = "none"
         })
-        document.getElementById("find-match").style.display = "block"
-        document.getElementById("find-match").style.opacity = 1
-        document.getElementById("cancel").style.display = "none"
-        document.getElementById("cancel").style.opacity = 0
     })
 })
+
+const stat = (res) => {
+    console.log(res.status)
+    return res.status == 204 ? true : false;
+}
 
 // Start listening for the LCU client
 connector.start();

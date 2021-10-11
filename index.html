@@ -56,7 +56,6 @@
         
         #cancel {
             display: none;
-            opacity: 0;
             font-family: inherit;
             position: absolute;
             color: white;
@@ -80,7 +79,7 @@
             color: white;
             margin: 0.5vw;
             font-size: 1vw;
-            padding: 1vw;
+            padding: 0.5vw;
             width: 12vw;
             height: 25vw;
             float: left;
@@ -137,8 +136,36 @@
         
         .pos {
             filter: invert(0%) sepia(44%) saturate(0%) hue-rotate(205deg) brightness(99%) contrast(104%);
+            width: 4vw;
+            height: 4vw;
+            display: none;
+            text-align: center;
+            margin: 0.45vw 0 0;
+        }
+
+        .game {
+            filter: invert(0%) sepia(44%) saturate(0%) hue-rotate(205deg) brightness(99%) contrast(104%);
+            margin: 0 5vw 0;
+            align-self: center;
+            justify-self: center;
+            width: 10vw;
+            height: 10vw;
+            transition: 500ms ease-in-out
+        }
+
+        .game:hover {
+            cursor: pointer;
+            filter: invert(0%) sepia(0%) saturate(50%) hue-rotate(90deg) brightness(99%) contrast(50%);
+            transition: 500ms ease-in-out
+        }
+        
+        .lane {
+            display: inline-block;
+            border: 0.2vw solid white;
+            /* border-radius: 50%; */
             width: 5vw;
             height: 5vw;
+            margin: 4.5vw 0.8vw 0;
         }
     </style>
 </head>
@@ -147,7 +174,6 @@
     <div id="window">
         <p id="waiting">Waiting for League Client</p>
         <div id="container">
-            <img class="pos" src="https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/svg/position-middle.svg" alt="">
             <input type="button" class="trans" value="✕" id="cancel">
             <input type="button" class="trans" value="FIND MATCH" id="find-match">
         </div>

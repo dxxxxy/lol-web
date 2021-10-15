@@ -110,7 +110,6 @@ let t, j, m, a, s
 let roles = []
 
 const positionRoles = (first, second, id) => {
-
     roles.forEach(e => e.style.display = "inline-block")
     // roles.forEach(e => {
     //     //appends at the right spot, but misses the inverse
@@ -141,7 +140,50 @@ const positionRoles = (first, second, id) => {
 
 }
 
-const createPlayer = (name, icon, id, lvl, percent) => {
+let cycles = {
+    0: "UNSELECTED",
+    1: "TOP",
+    2: "JUNGLE",
+    3: "MIDDLE",
+    4: "BOTTOM",
+    5: "UTILITY",
+    6: "FILL"
+}
+
+let cycle1 = 0
+let cycle2 = 0
+
+const cycleRole = (first, second, lane) => {
+    console.log(first, second, lane)
+    cycle1 = +Object.keys(cycles).find(k=>cycles[k]===first);
+    cycle2 = +Object.keys(cycles).find(k=>cycles[k]===second);
+    console.log(cycle1)
+    if (lane == 1) {
+        cycle1++
+        console.log(cycle1)
+    }
+
+    if (lane == 2)  {
+        cycle2++
+    }
+    
+    if (cycle1 > 6) cycle1 = 0
+    if (cycle2 > 6) cycle2 = 0
+    console.log(cycle1)
+
+    put("/lol-lobby/v1/parties/metadata", {
+        "positionPref": [
+            cycles[cycle1],
+            cycles[cycle2]
+        ]
+    })
+}
+
+let lobbyIds = []
+let riotIds = []
+let positions = {}
+
+const createPlayer = (name, icon, id, lvl, percent, isLeader) => {
     var fieldset = document.createElement("fieldset")
     var legend = document.createElement("legend")
     var img = document.createElement("img")
@@ -152,11 +194,69 @@ const createPlayer = (name, icon, id, lvl, percent) => {
     var ph = document.createElement("img")
     var ph2 = document.createElement("img")
 
+    // var rc1 = document.createElement("div")
+    // var rc2 = document.createElement("div")
+    // var rc3 = document.createElement("div")
+    // var rc4 = document.createElement("div")
+    // var rc5 = document.createElement("div")
+
+    // var rc6 = document.createElement("div")
+    // var rc7 = document.createElement("div")
+    // var rc8 = document.createElement("div")
+    // var rc9 = document.createElement("div")
+    // var rc10 = document.createElement("div")
+
+    // rc1.className = "rc1"
+    // rc2.className = "rc1"
+    // rc3.className = "rc1"
+    // rc4.className = "rc1"
+    // rc5.className = "rc1"
+
+    // rc6.className = "rc2"
+    // rc7.className = "rc2"
+    // rc8.className = "rc2"
+    // rc9.className = "rc2"
+    // rc10.className = "rc2"
+
+    // rc1.innerHTML = "Top"
+    
+    // rc2.innerHTML = "Jungle"
+    
+    // rc3.innerHTML = "Middle"
+    
+    // rc4.innerHTML = "Bottom"
+    
+    // rc5.innerHTML = "Support"
+
+    // rc6.innerHTML = "Top"
+
+    // rc7.innerHTML = "Jungle"
+    
+    // rc8.innerHTML = "Middle"
+    
+    // rc9.innerHTML = "Bottom"
+    
+    // rc10.innerHTML = "Support"
+
+
+
+
     ph.src = "bruh"
     ph2.src = "bruh"
+    // lane1.appendChild(rc1)
+    // lane1.appendChild(rc2)
+    // lane1.appendChild(rc3)
+    // lane1.appendChild(rc4)
+    // lane1.appendChild(rc5)
+    // lane2.appendChild(rc6)
+    // lane2.appendChild(rc7)
+    // lane2.appendChild(rc8)
+    // lane2.appendChild(rc9)
+    // lane2.appendChild(rc10)
 
     ph.id = `first-${id}`
     ph2.id = `second-${id}`
+    
 
     ph.className = "pos"
     ph2.className = "pos"
@@ -192,11 +292,26 @@ const createPlayer = (name, icon, id, lvl, percent) => {
     fieldset.id = id
 
     document.getElementById("container").appendChild(fieldset)
+
+    if (isLeader) {
+        lane1.addEventListener("click", () => {
+            cycleRole(positions[id].first, positions[id].second, 1)
+        })
+
+        lane2.addEventListener("click", () => {
+            cycleRole(positions[id].first, positions[id].second, 2)
+        })
+    }
+    // lane1.addEventListener("click", () => {
+    //     document.querySelectorAll(".rc1").forEach(e => e.style.display = "block") 
+    // })
+
+    // lane2.addEventListener("click", () => {
+    //     document.querySelectorAll(".rc2").forEach(e => e.style.display = "block") 
+    // })
 }
 
-let lobbyIds = []
-let riotIds = []
-let positions = {}
+
 
 const mainMenu = () => {
     var sr = document.createElement("img")
@@ -272,7 +387,7 @@ connector.on('connect', (data) => {
                     lobbyIds.push(res[player].summonerId)
                     let percent = await get(`/lol-summoner/v1/summoners/${res[player].summonerId}`).then(res2 => res2.percentCompleteForNextLevel)
                     console.log(positions)
-                    createPlayer(res[player].isLeader ? res[player].summonerName + "👑" : res[player].summonerName, res[player].summonerIconId, res[player].summonerId, res[player].summonerLevel, percent)
+                    createPlayer(res[player].isLeader ? res[player].summonerName + "👑" : res[player].summonerName, res[player].summonerIconId, res[player].summonerId, res[player].summonerLevel, percent, res[player].isLeader, res[player].firstPositionPreference, res[player].secondPositionPreference)
                     positionRoles(res[player].firstPositionPreference, res[player].secondPositionPreference, res[player].summonerId)
                 })
             })
@@ -344,15 +459,6 @@ connector.start();
 
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById("container").style.display = "none"
-
-    const replaceText = (selector, text) => {
-        const element = document.getElementById(selector)
-        if (element) element.innerText = text
-    }
-
-    for (const type of ['chrome', 'node', 'electron']) {
-        replaceText(`${type}-version`, process.versions[type])
-    }
 })
 
 const saveConfig = () => {

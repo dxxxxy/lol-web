@@ -1,143 +1,23 @@
 // All of the Node.js APIs are available in the preload process.
 // It has the same sandbox as a Chrome extension.
+var {
+    get,
+    post,
+    put,
+    del
+} = require("./utils/methods.js")
+
 const LCUConnector = require('lcu-connector')
 const connector = new LCUConnector()
-const fetch = require("node-fetch")
 const fs = require("fs")
-
-let auth = {}
 
 let config = {}
 
-const get = (endpoint) => {
-        return new Promise(function(resolve, reject) {
-                    resolve(fetch(`${auth.protocol}://${auth.address}:${auth.port}${endpoint}`, {
-                                    headers: {
-                                        'Accept': "application/json",
-                                        'Authorization': `Basic ${Buffer.from(`${auth.username}:${auth.password}`).toString("base64")}`
-                }
-        })
-        .then(res => res.text())
-        .then(res => {
-            return res === "" ? {} : JSON.parse(res);
-        }))
-    })
-}
-
-const post = (endpoint, body) => {
-    return new Promise(function(resolve, reject) {
-        resolve(fetch(`${auth.protocol}://${auth.address}:${auth.port}${endpoint}`, {
-            method: 'POST',
-            body: JSON.stringify(body),
-            headers: {
-                'Content-type': 'application/json',
-                'Authorization': `Basic ${Buffer.from(`${auth.username}:${auth.password}`).toString("base64")}`
-            }
-        })
-        // .then(res => res.text())
-        // .then(res => {
-        //     return res === "" ? {} : JSON.parse(res);
-        // })
-        )
-    })
-}
-
-const del = (endpoint) => {
-    return new Promise(function(resolve, reject) {
-        resolve(fetch(`${auth.protocol}://${auth.address}:${auth.port}${endpoint}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-type': 'application/json',
-                'Authorization': `Basic ${Buffer.from(`${auth.username}:${auth.password}`).toString("base64")}`
-            }
-        })
-        // .then(res => res.text())
-        // .then(res => {
-        //     return res === "" ? {} : JSON.parse(res);
-        // })
-        )
-    })
-}
-
-const put = (endpoint, body) => {
-    return new Promise(function(resolve, reject) {
-        resolve(fetch(`${auth.protocol}://${auth.address}:${auth.port}${endpoint}`, {
-            method: 'PUT',
-            body: JSON.stringify(body),
-            headers: {
-                'Content-type': 'application/json',
-                'Authorization': `Basic ${Buffer.from(`${auth.username}:${auth.password}`).toString("base64")}`
-            }
-        })
-        .then(res => res.text())
-        .then(res => {
-            return res === "" ? {} : JSON.parse(res);
-        }))
-    })
-}
-
-/*
-{
-  allowedChangeActivity: true,
-  allowedInviteOthers: true,
-  allowedKickOthers: true,
-  allowedStartActivity: true,
-  allowedToggleInvite: true,
-  autoFillEligible: false,
-  autoFillProtectedForPromos: false,
-  autoFillProtectedForSoloing: false,
-  autoFillProtectedForStreaking: true,
-  botChampionId: 0,
-  botDifficulty: 'NONE',
-  botId: '',
-  firstPositionPreference: 'UTILITY',
-  isBot: false,
-  isLeader: true,
-  isSpectator: false,
-  puuid: '8740b9d7-8b79-584d-b8ea-83a4a3d407bd',
-  ready: true,
-  secondPositionPreference: 'MIDDLE',
-  showGhostedBanner: false,
-  summonerIconId: 1637,
-  summonerId: 2713467472864992,
-  summonerInternalName: 'yurms',
-  summonerLevel: 39,
-  summonerName: 'yurms',
-  teamId: 0
-}
-*/
-let t, j, m, a, s
-let roles = []
-
+// Attribute roles to players
 const positionRoles = (first, second, id) => {
-    roles.forEach(e => e.style.display = "inline-block")
-    // roles.forEach(e => {
-    //     //appends at the right spot, but misses the inverse
-    //     if (e.id != first && document.getElementById(`lane1-${id}`).children.length > 0) {
-    //         return  document.getElementById(`lane1-${id}`).children[0].remove()
-    //         // e.remove()
-    //     }
-    //     console.log(document.getElementById(`lane2-${id}`).children.length > 0)
-    //     if (e.id != second && document.getElementById(`lane2-${id}`).children.length > 0) {
-    //         return document.getElementById(`lane1-${id}`).children[0].remove()
-    //         // e.remove()
-    //     }
-    //     if (e.id == first) {
-    //         document.getElementById(`lane1-${id}`).appendChild(e)
-    //         return e.style.display = "inline-block"
-    //     }
-    //     if (e.id == second) {
-    //         document.getElementById(`lane2-${id}`).appendChild(e)
-    //         return e.style.display = "inline-block"
-    //     }
-    // })//https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/images/champion-bench/moreinfo4k_default.png
-    // console.log(document.getElementById(`lane1-${id}`).children[0], document.getElementById(`lane2-${id}`).children[0])
-    // document.getElementById(`lane1-${id}`).children[0].src = `https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/svg/position-${first.toLowerCase()}.svg`
-    // document.getElementById(`lane2-${id}`).children[0].src = `https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/svg/position-${second.toLowerCase()}.svg`
     if (first == "FILL") second = "FILL"
     document.getElementById(`first-${id}`).src = `https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-clash/global/default/assets/images/position-selector/positions/icon-position-${first.toLowerCase()}.png`
     document.getElementById(`second-${id}`).src = `https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-clash/global/default/assets/images/position-selector/positions/icon-position-${second.toLowerCase()}.png`
-
 }
 
 let cycles = {
@@ -153,23 +33,21 @@ let cycles = {
 let cycle1 = 0
 let cycle2 = 0
 
+// Cycle leader's roles on click
 const cycleRole = (first, second, lane) => {
-    console.log(first, second, lane)
-    cycle1 = +Object.keys(cycles).find(k=>cycles[k]===first);
-    cycle2 = +Object.keys(cycles).find(k=>cycles[k]===second);
-    console.log(cycle1)
+    cycle1 = +Object.keys(cycles).find(k => cycles[k] === first);
+    cycle2 = +Object.keys(cycles).find(k => cycles[k] === second);
+
     if (lane == 1) {
         cycle1++
-        console.log(cycle1)
     }
 
-    if (lane == 2)  {
+    if (lane == 2) {
         cycle2++
     }
-    
+
     if (cycle1 > 6) cycle1 = 0
     if (cycle2 > 6) cycle2 = 0
-    console.log(cycle1)
 
     put("/lol-lobby/v1/parties/metadata", {
         "positionPref": [
@@ -183,80 +61,23 @@ let lobbyIds = []
 let riotIds = []
 let positions = {}
 
+// Create player card
 const createPlayer = (name, icon, id, lvl, percent, isLeader) => {
     var fieldset = document.createElement("fieldset")
     var legend = document.createElement("legend")
     var img = document.createElement("img")
     var border = document.createElement("img")
     var p = document.createElement("p")
-    var lane1 = document.createElement("div")   
+    var lane1 = document.createElement("div")
     var lane2 = document.createElement("div")
     var ph = document.createElement("img")
     var ph2 = document.createElement("img")
 
-    // var rc1 = document.createElement("div")
-    // var rc2 = document.createElement("div")
-    // var rc3 = document.createElement("div")
-    // var rc4 = document.createElement("div")
-    // var rc5 = document.createElement("div")
-
-    // var rc6 = document.createElement("div")
-    // var rc7 = document.createElement("div")
-    // var rc8 = document.createElement("div")
-    // var rc9 = document.createElement("div")
-    // var rc10 = document.createElement("div")
-
-    // rc1.className = "rc1"
-    // rc2.className = "rc1"
-    // rc3.className = "rc1"
-    // rc4.className = "rc1"
-    // rc5.className = "rc1"
-
-    // rc6.className = "rc2"
-    // rc7.className = "rc2"
-    // rc8.className = "rc2"
-    // rc9.className = "rc2"
-    // rc10.className = "rc2"
-
-    // rc1.innerHTML = "Top"
-    
-    // rc2.innerHTML = "Jungle"
-    
-    // rc3.innerHTML = "Middle"
-    
-    // rc4.innerHTML = "Bottom"
-    
-    // rc5.innerHTML = "Support"
-
-    // rc6.innerHTML = "Top"
-
-    // rc7.innerHTML = "Jungle"
-    
-    // rc8.innerHTML = "Middle"
-    
-    // rc9.innerHTML = "Bottom"
-    
-    // rc10.innerHTML = "Support"
-
-
-
-
-    ph.src = "bruh"
-    ph2.src = "bruh"
-    // lane1.appendChild(rc1)
-    // lane1.appendChild(rc2)
-    // lane1.appendChild(rc3)
-    // lane1.appendChild(rc4)
-    // lane1.appendChild(rc5)
-    // lane2.appendChild(rc6)
-    // lane2.appendChild(rc7)
-    // lane2.appendChild(rc8)
-    // lane2.appendChild(rc9)
-    // lane2.appendChild(rc10)
+    ph.src = "placeholder"
+    ph2.src = "placeholder"
 
     ph.id = `first-${id}`
     ph2.id = `second-${id}`
-    
 
     ph.className = "pos"
     ph2.className = "pos"
@@ -302,17 +123,9 @@ const createPlayer = (name, icon, id, lvl, percent, isLeader) => {
             cycleRole(positions[id].first, positions[id].second, 2)
         })
     }
-    // lane1.addEventListener("click", () => {
-    //     document.querySelectorAll(".rc1").forEach(e => e.style.display = "block") 
-    // })
-
-    // lane2.addEventListener("click", () => {
-    //     document.querySelectorAll(".rc2").forEach(e => e.style.display = "block") 
-    // })
 }
 
-
-
+// Create a main menu when not in lobby
 const mainMenu = () => {
     var sr = document.createElement("img")
     var ar = document.createElement("img")
@@ -342,11 +155,12 @@ const mainMenu = () => {
 
 let menu = false
 
+// Connect to LCU event
 connector.on('connect', (data) => {
     console.log(data)
-    auth = data
+    window.auth = data
 
-    let lobby = setInterval(() => {
+    setInterval(() => {
         get("/lol-lobby/v2/lobby").then(res => {
             if (res.httpStatus == 404) {
                 if (!menu) {
@@ -354,18 +168,22 @@ connector.on('connect', (data) => {
                     lobbyIds.length = 0
                     riotIds.length = 0
                     document.getElementById("find-match").style.display = "none"
-                    document.querySelectorAll(".player").forEach(e => { e.remove() })
+                    document.querySelectorAll(".player").forEach(e => {
+                        e.remove()
+                    })
                 }
                 return menu = true
-            } 
+            }
             get("/lol-lobby/v2/lobby/members").then(res => {
                 if (menu) {
                     document.getElementById("find-match").style.display = "block"
                 }
-                
+
                 menu = false
-                
-                document.querySelectorAll(".game").forEach(e => { e.remove() })
+
+                document.querySelectorAll(".game").forEach(e => {
+                    e.remove()
+                })
                 lobbyIds.forEach(id => {
                     if (!riotIds.includes(id)) {
                         lobbyIds.slice(lobbyIds.indexOf(id), 1)
@@ -374,14 +192,23 @@ connector.on('connect', (data) => {
                 })
                 riotIds.length = 0
                 Object.keys(res).forEach(async player => {
-                    if(positions.hasOwnProperty(res[player].summonerId)) {
-                        if (JSON.stringify(positions[res[player].summonerId]) !== JSON.stringify({ first: res[player].firstPositionPreference, second: res[player].secondPositionPreference })) {
-                            positions[res[player].summonerId] = { first: res[player].firstPositionPreference, second: res[player].secondPositionPreference }
+                    if (positions.hasOwnProperty(res[player].summonerId)) {
+                        if (JSON.stringify(positions[res[player].summonerId]) !== JSON.stringify({
+                                first: res[player].firstPositionPreference,
+                                second: res[player].secondPositionPreference
+                            })) {
+                            positions[res[player].summonerId] = {
+                                first: res[player].firstPositionPreference,
+                                second: res[player].secondPositionPreference
+                            }
                             positionRoles(res[player].firstPositionPreference, res[player].secondPositionPreference, res[player].summonerId)
                         }
                     }
 
-                    positions[res[player].summonerId] = { first: res[player].firstPositionPreference, second: res[player].secondPositionPreference }
+                    positions[res[player].summonerId] = {
+                        first: res[player].firstPositionPreference,
+                        second: res[player].secondPositionPreference
+                    }
                     riotIds.push(res[player].summonerId)
                     if (lobbyIds.includes(res[player].summonerId)) return
                     lobbyIds.push(res[player].summonerId)
@@ -392,36 +219,8 @@ connector.on('connect', (data) => {
                 })
             })
         })
-        
+
     }, 1000)
-    
-    // init roles
-    t = document.createElement("img")
-    j = document.createElement("img")
-    m = document.createElement("img")
-    a = document.createElement("img")
-    s = document.createElement("img")
-
-    t.src = "https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/svg/position-top.svg"
-    j.src = "https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/svg/position-jungle.svg"
-    m.src = "https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/svg/position-middle.svg"
-    a.src = "https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/svg/position-bottom.svg"
-    s.src = "https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/svg/position-utility.svg"
-
-    t.id = "TOP"
-    j.id = "JUNGLE"
-    m.id = "MIDDLE"
-    a.id = "BOTTOM"
-    s.id = "UTILITY"
-
-    t.className = "pos"
-    j.className = "pos"
-    m.className = "pos"
-    a.className = "pos"
-    s.className = "pos"
-
-    roles = [t, j, m, a, s]
-    
 
     document.getElementById("container").style.display = "flex"
     document.getElementById("waiting").style.display = "none"
@@ -431,9 +230,7 @@ connector.on('connect', (data) => {
 
     document.getElementById("find-match").addEventListener("click", e => {
         post("/lol-lobby/v2/lobby/matchmaking/search").then(res => {
-            // console.log(res)
             if (!stat(res)) return
-            //console.log("bruh")
             document.getElementById("cancel").style.display = "block"
             document.getElementById("find-match").style.display = "none"
         })
@@ -441,7 +238,6 @@ connector.on('connect', (data) => {
 
     document.getElementById("cancel").addEventListener("click", e => {
         del("/lol-lobby/v2/lobby/matchmaking/search").then(res => {
-            // console.log(res)
             if (!stat(res)) return
             document.getElementById("find-match").style.display = "block"
             document.getElementById("cancel").style.display = "none"
@@ -449,26 +245,34 @@ connector.on('connect', (data) => {
     })
 })
 
+// Check if request status is ok
 const stat = (res) => {
     console.log(res.status)
     return ((res.status == 204 || res.status == 201) ? true : false);
 }
-
-// Start listening for the LCU client
-connector.start();
 
 window.addEventListener('DOMContentLoaded', () => {
     document.getElementById("container").style.display = "none"
 })
 
 const saveConfig = () => {
-    fs.writeFile("config.json", config)
+    fs.writeFile("config.json", JSON.stringify(config), () => {
+        console.log("Config saved")
+    })
 }
 
 const loadConfig = () => {
-    if (!fs.exists("config.json")) fs.writeFile("config.json", "")
+    if (!fs.existsSync("config.json")) fs.writeFile("config.json", JSON.stringify(config), () => {
+        console.log("Config created")
+    })
     fs.readFile("config.json", (err, data) => {
         if (err) return err
         config = JSON.parse(data)
     })
 }
+
+// Start listening for the LCU client
+connector.start();
+
+// Load config
+loadConfig()

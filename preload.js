@@ -3,15 +3,18 @@
 const LCUConnector = require('lcu-connector')
 const connector = new LCUConnector()
 const fetch = require("node-fetch")
+const fs = require("fs")
 
 let auth = {}
 
+let config = {}
+
 const get = (endpoint) => {
         return new Promise(function(resolve, reject) {
-            resolve(fetch(`${auth.protocol}://${auth.address}:${auth.port}${endpoint}`, {
-                headers: {
-                    'Accept': "application/json",
-                    'Authorization': `Basic ${Buffer.from(`${auth.username}:${auth.password}`).toString("base64")}`
+                    resolve(fetch(`${auth.protocol}://${auth.address}:${auth.port}${endpoint}`, {
+                                    headers: {
+                                        'Accept': "application/json",
+                                        'Authorization': `Basic ${Buffer.from(`${auth.username}:${auth.password}`).toString("base64")}`
                 }
         })
         .then(res => res.text())
@@ -106,26 +109,36 @@ const put = (endpoint, body) => {
 let t, j, m, a, s
 let roles = []
 
-const positionRoles = (first, second) => {
-    roles.forEach(e => {
-        if (e.id != first && e.id != second) {
-            e.style.display = "none"
-        }
-        if (e.id == first) {
-            document.getElementById("lane1").appendChild(e)
-            e.style.display = "inline-block"
-        }
-        if (e.id == second) {
-            document.getElementById("lane2").appendChild(e)
-            e.style.display = "inline-block"
-        }
-    })
+const positionRoles = (first, second, id) => {
+
+    roles.forEach(e => e.style.display = "inline-block")
     // roles.forEach(e => {
-    //     if (e.id == second) {
-    //         document.getElementById("container").appendChild(e)
-    //         e.style.display = "block"
+    //     //appends at the right spot, but misses the inverse
+    //     if (e.id != first && document.getElementById(`lane1-${id}`).children.length > 0) {
+    //         return  document.getElementById(`lane1-${id}`).children[0].remove()
+    //         // e.remove()
     //     }
-    // })
+    //     console.log(document.getElementById(`lane2-${id}`).children.length > 0)
+    //     if (e.id != second && document.getElementById(`lane2-${id}`).children.length > 0) {
+    //         return document.getElementById(`lane1-${id}`).children[0].remove()
+    //         // e.remove()
+    //     }
+    //     if (e.id == first) {
+    //         document.getElementById(`lane1-${id}`).appendChild(e)
+    //         return e.style.display = "inline-block"
+    //     }
+    //     if (e.id == second) {
+    //         document.getElementById(`lane2-${id}`).appendChild(e)
+    //         return e.style.display = "inline-block"
+    //     }
+    // })//https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/images/champion-bench/moreinfo4k_default.png
+    // console.log(document.getElementById(`lane1-${id}`).children[0], document.getElementById(`lane2-${id}`).children[0])
+    // document.getElementById(`lane1-${id}`).children[0].src = `https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/svg/position-${first.toLowerCase()}.svg`
+    // document.getElementById(`lane2-${id}`).children[0].src = `https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-champ-select/global/default/svg/position-${second.toLowerCase()}.svg`
+    if (first == "FILL") second = "FILL"
+    document.getElementById(`first-${id}`).src = `https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-clash/global/default/assets/images/position-selector/positions/icon-position-${first.toLowerCase()}.png`
+    document.getElementById(`second-${id}`).src = `https://raw.communitydragon.org/11.20/plugins/rcp-fe-lol-clash/global/default/assets/images/position-selector/positions/icon-position-${second.toLowerCase()}.png`
+
 }
 
 const createPlayer = (name, icon, id, lvl, percent) => {
@@ -134,14 +147,27 @@ const createPlayer = (name, icon, id, lvl, percent) => {
     var img = document.createElement("img")
     var border = document.createElement("img")
     var p = document.createElement("p")
-    var lane1 = document.createElement("div")
+    var lane1 = document.createElement("div")   
     var lane2 = document.createElement("div")
+    var ph = document.createElement("img")
+    var ph2 = document.createElement("img")
+
+    ph.src = "bruh"
+    ph2.src = "bruh"
+
+    ph.id = `first-${id}`
+    ph2.id = `second-${id}`
+
+    ph.className = "pos"
+    ph2.className = "pos"
 
     lane1.className = "lane"
-    lane1.id = "lane1"
+    lane1.id = `lane1-${id}`
+    lane1.appendChild(ph)
 
     lane2.className = "lane"
-    lane2.id = "lane2"
+    lane2.id = `lane2-${id}`
+    lane2.appendChild(ph2)
 
     p.innerHTML = lvl
 
@@ -170,6 +196,7 @@ const createPlayer = (name, icon, id, lvl, percent) => {
 
 let lobbyIds = []
 let riotIds = []
+let positions = {}
 
 const mainMenu = () => {
     var sr = document.createElement("img")
@@ -232,13 +259,21 @@ connector.on('connect', (data) => {
                 })
                 riotIds.length = 0
                 Object.keys(res).forEach(async player => {
-                    
+                    if(positions.hasOwnProperty(res[player].summonerId)) {
+                        if (JSON.stringify(positions[res[player].summonerId]) !== JSON.stringify({ first: res[player].firstPositionPreference, second: res[player].secondPositionPreference })) {
+                            positions[res[player].summonerId] = { first: res[player].firstPositionPreference, second: res[player].secondPositionPreference }
+                            positionRoles(res[player].firstPositionPreference, res[player].secondPositionPreference, res[player].summonerId)
+                        }
+                    }
+
+                    positions[res[player].summonerId] = { first: res[player].firstPositionPreference, second: res[player].secondPositionPreference }
                     riotIds.push(res[player].summonerId)
                     if (lobbyIds.includes(res[player].summonerId)) return
                     lobbyIds.push(res[player].summonerId)
                     let percent = await get(`/lol-summoner/v1/summoners/${res[player].summonerId}`).then(res2 => res2.percentCompleteForNextLevel)
+                    console.log(positions)
                     createPlayer(res[player].isLeader ? res[player].summonerName + "👑" : res[player].summonerName, res[player].summonerIconId, res[player].summonerId, res[player].summonerLevel, percent)
-                    positionRoles(res[player].firstPositionPreference, res[player].secondPositionPreference)
+                    positionRoles(res[player].firstPositionPreference, res[player].secondPositionPreference, res[player].summonerId)
                 })
             })
         })
@@ -271,6 +306,7 @@ connector.on('connect', (data) => {
     s.className = "pos"
 
     roles = [t, j, m, a, s]
+    
 
     document.getElementById("container").style.display = "flex"
     document.getElementById("waiting").style.display = "none"
@@ -282,7 +318,7 @@ connector.on('connect', (data) => {
         post("/lol-lobby/v2/lobby/matchmaking/search").then(res => {
             // console.log(res)
             if (!stat(res)) return
-            console.log("bruh")
+            //console.log("bruh")
             document.getElementById("cancel").style.display = "block"
             document.getElementById("find-match").style.display = "none"
         })
@@ -300,7 +336,7 @@ connector.on('connect', (data) => {
 
 const stat = (res) => {
     console.log(res.status)
-    return res.status == 204 ? true : false;
+    return ((res.status == 204 || res.status == 201) ? true : false);
 }
 
 // Start listening for the LCU client
@@ -318,3 +354,15 @@ window.addEventListener('DOMContentLoaded', () => {
         replaceText(`${type}-version`, process.versions[type])
     }
 })
+
+const saveConfig = () => {
+    fs.writeFile("config.json", config)
+}
+
+const loadConfig = () => {
+    if (!fs.exists("config.json")) fs.writeFile("config.json", "")
+    fs.readFile("config.json", (err, data) => {
+        if (err) return err
+        config = JSON.parse(data)
+    })
+}

@@ -3,10 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <!-- <meta http-equiv="Content-Security-Policy" content="img-src 'self' http://xxxx 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; ws://localhost:*/socket.io/; default-src 'self' ws://localhost:*/socket.io/; script-src 'self' ws://localhost:*/socket.io/"> -->
-    <!-- <meta http-equiv="X-Content-Security-Policy" content="img-src 'self' http://xxxx 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; default-src 'self' ws://localhost:*/socket.io/; script-src 'self' ws://localhost:*/socket.io/"> -->
-    <title>Hello World!</title>
+    <title>lol-web</title>
     <style>
         .trans {
             transition: background 500ms ease-in-out, color 500ms ease-in-out;
@@ -106,7 +103,7 @@
         }
         
         .a {
-            margin: 1vw 0 0;
+            margin: 2.5vw 0 0;
             border-radius: 50%;
             width: 8vw;
             padding: 0.6vw;
@@ -138,11 +135,11 @@
             filter: invert(0%) sepia(44%) saturate(0%) hue-rotate(205deg) brightness(99%) contrast(104%);
             width: 4vw;
             height: 4vw;
-            display: none;
+            /* display: none; */
             text-align: center;
             margin: 0.45vw 0 0;
         }
-
+        
         .game {
             filter: invert(0%) sepia(44%) saturate(0%) hue-rotate(205deg) brightness(99%) contrast(104%);
             margin: 0 5vw 0;
@@ -150,13 +147,13 @@
             justify-self: center;
             width: 10vw;
             height: 10vw;
-            transition: 500ms ease-in-out
+            transition: filter 500ms ease-in-out
         }
-
+        
         .game:hover {
             cursor: pointer;
             filter: invert(0%) sepia(0%) saturate(50%) hue-rotate(90deg) brightness(99%) contrast(50%);
-            transition: 500ms ease-in-out
+            transition: filter 500ms ease-in-out
         }
         
         .lane {
@@ -165,7 +162,17 @@
             /* border-radius: 50%; */
             width: 5vw;
             height: 5vw;
-            margin: 4.5vw 0.8vw 0;
+            margin: 3.5vw 0.8vw 0;
+        }
+        
+        .lane img {
+            transition: filter 500ms ease-in-out
+        }
+        
+        .lane img:hover {
+            cursor: pointer;
+            filter: invert(0%) sepia(0%) saturate(50%) hue-rotate(90deg) brightness(99%) contrast(50%);
+            transition: filter 500ms ease-in-out
         }
     </style>
 </head>

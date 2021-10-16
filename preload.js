@@ -325,17 +325,20 @@ connector.on('connect', (data) => {
                 }
                 return menu = true
             }
+            // menu = false
             get("/lol-lobby/v2/lobby/members").then(res => {
-                if (menu) {
+                console.log(window.getComputedStyle(document.getElementById("cancel")).display)
+                if (window.getComputedStyle(document.getElementById("cancel")).display == "none") {
                     document.getElementById("find-match").style.display = "block"
                     document.getElementById("leave").style.display = "block"
+                } else {
+                    document.getElementById("find-match").style.display = "none"
                 }
-
-                menu = false
 
                 document.querySelectorAll(".cont").forEach(e => {
                     e.remove()
                 })
+
                 lobbyIds.forEach(id => {
                     if (!riotIds.includes(id)) {
                         lobbyIds.slice(lobbyIds.indexOf(id), 1)

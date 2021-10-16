@@ -9,9 +9,14 @@ var {
 
 const LCUConnector = require('lcu-connector')
 const connector = new LCUConnector()
+const exec = require("child_process").exec
 const fs = require("fs")
+const path = require("path")
 
-let config = {}
+// default config
+let config = {
+    hider: true
+}
 
 // Attribute roles to players
 const positionRoles = (first, second, id) => {
@@ -32,6 +37,11 @@ let cycles = {
 
 let cycle1 = 0
 let cycle2 = 0
+
+const hider = (code) => {
+    // console.log(`${path.join(__dirname, "utils/hider.exe")} ${code}`)
+    exec(`${path.join(__dirname, "utils/hider.exe")} ${code}`)
+}
 
 // Cycle leader's roles on click
 const cycleRole = (first, second, lane) => {
@@ -73,8 +83,8 @@ const createPlayer = (name, icon, id, lvl, percent, isLeader) => {
     var ph = document.createElement("img")
     var ph2 = document.createElement("img")
 
-    ph.src = "placeholder"
-    ph2.src = "placeholder"
+    // ph.src = "placeholder"
+    // ph2.src = "placeholder"
 
     ph.id = `first-${id}`
     ph2.id = `second-${id}`
@@ -106,54 +116,191 @@ const createPlayer = (name, icon, id, lvl, percent, isLeader) => {
     fieldset.appendChild(img)
     fieldset.appendChild(border)
     fieldset.appendChild(p)
-    fieldset.appendChild(lane1)
-    fieldset.appendChild(lane2)
 
-    fieldset.className = "player"
-    fieldset.id = id
+    return new Promise(function(resolve, reject) {
+        resolve(
+            get("/lol-lobby/v2/lobby").then(res => {
+                if (res.gameConfig.queueId != 430 && res.gameConfig.queueId != 450 && res.gameConfig.queueId != 900) {
+                    fieldset.appendChild(lane1)
+                    fieldset.appendChild(lane2)
 
-    document.getElementById("container").appendChild(fieldset)
+                    if (isLeader) {
+                        lane1.addEventListener("click", () => {
+                            cycleRole(positions[id].first, positions[id].second, 1)
+                        })
 
-    if (isLeader) {
-        lane1.addEventListener("click", () => {
-            cycleRole(positions[id].first, positions[id].second, 1)
-        })
+                        lane2.addEventListener("click", () => {
+                            cycleRole(positions[id].first, positions[id].second, 2)
+                        })
+                    }
+                }
 
-        lane2.addEventListener("click", () => {
-            cycleRole(positions[id].first, positions[id].second, 2)
-        })
-    }
+                fieldset.className = "player"
+                fieldset.id = id
+
+                document.getElementById("container").appendChild(fieldset)
+            })
+        )
+    })
+
 }
 
 // Create a main menu when not in lobby
 const mainMenu = () => {
+    var a = document.createElement("div")
+    var b = document.createElement("div")
+    var c = document.createElement("div")
+
     var sr = document.createElement("img")
     var ar = document.createElement("img")
-    var tt = document.createElement("img")
     var sp = document.createElement("img")
 
     sr.src = "https://raw.communitydragon.org/11.20/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/classic_sru/img/game-select-icon-default.png"
     ar.src = "https://raw.communitydragon.org/11.20/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/aram/img/game-select-icon-default.png"
-    tt.src = "https://raw.communitydragon.org/11.20/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/tft/img/game-select-icon-default.png"
     sp.src = "https://raw.communitydragon.org/11.20/plugins/rcp-be-lol-game-data/global/default/content/src/leagueclient/gamemodeassets/shared/img/icon-rgm-empty.png"
 
     sr.className = "game"
     ar.className = "game"
-    tt.className = "game"
     sp.className = "game"
 
     sr.id = "sr"
     ar.id = "ar"
-    tt.id = "tt"
     sp.id = "sp"
 
-    document.getElementById("container").appendChild(sr)
-    document.getElementById("container").appendChild(ar)
-    document.getElementById("container").appendChild(tt)
-    document.getElementById("container").appendChild(sp)
+    a.className = "cont"
+    b.className = "cont"
+    c.className = "cont"
+
+    a.id = "cont-sr"
+    b.id = "cont-ap"
+    c.id = "cont-sp"
+
+    a.appendChild(sr)
+    b.appendChild(ar)
+    c.appendChild(sp)
+
+    document.getElementById("container").appendChild(a)
+    document.getElementById("container").appendChild(b)
+    document.getElementById("container").appendChild(c)
+
+    var bp = document.createElement("button")
+    var dp = document.createElement("button")
+    var rsd = document.createElement("button")
+    var rf = document.createElement("button")
+
+    var arm = document.createElement("button")
+
+    var spec = document.createElement("button")
+
+    bp.innerHTML = "Blind Pick"
+    dp.innerHTML = "Draft Pick"
+    rsd.innerHTML = "Ranked Solo/Duo"
+    rf.innerHTML = "Ranked Flex"
+
+    arm.innerHTML = "Aram"
+
+    spec.innerHTML = "URF"
+
+    sr.addEventListener("click", () => {
+        a.appendChild(bp)
+        a.appendChild(dp)
+        a.appendChild(rsd)
+        a.appendChild(rf)
+        arm.remove()
+        spec.remove()
+    })
+
+    ar.addEventListener("click", () => {
+        b.appendChild(arm)
+        bp.remove()
+        dp.remove()
+        rsd.remove()
+        rf.remove()
+        spec.remove()
+    })
+
+    sp.addEventListener("click", () => {
+        c.appendChild(spec)
+        bp.remove()
+        dp.remove()
+        rsd.remove()
+        rf.remove()
+        arm.remove()
+    })
+
+    // get into lobby
+    bp.addEventListener("click", () => {
+        bp.remove()
+        dp.remove()
+        rsd.remove()
+        rf.remove()
+        arm.remove()
+        spec.remove()
+        post("/lol-lobby/v2/lobby", { "queueId": 430 })
+    })
+
+    dp.addEventListener("click", () => {
+        bp.remove()
+        dp.remove()
+        rsd.remove()
+        rf.remove()
+        arm.remove()
+        spec.remove()
+        post("/lol-lobby/v2/lobby", { "queueId": 400 })
+    })
+
+    rsd.addEventListener("click", () => {
+        bp.remove()
+        dp.remove()
+        rsd.remove()
+        rf.remove()
+        arm.remove()
+        spec.remove()
+        post("/lol-lobby/v2/lobby", { "queueId": 420 })
+    })
+
+    rf.addEventListener("click", () => {
+        bp.remove()
+        dp.remove()
+        rsd.remove()
+        rf.remove()
+        arm.remove()
+        spec.remove()
+        post("/lol-lobby/v2/lobby", { "queueId": 440 })
+    })
+
+    arm.addEventListener("click", () => {
+        bp.remove()
+        dp.remove()
+        rsd.remove()
+        rf.remove()
+        arm.remove()
+        spec.remove()
+        post("/lol-lobby/v2/lobby", { "queueId": 450 })
+    })
+
+    spec.addEventListener("click", () => {
+        bp.remove()
+        dp.remove()
+        rsd.remove()
+        rf.remove()
+        arm.remove()
+        spec.remove()
+        post("/lol-lobby/v2/lobby", { "queueId": 900 })
+    })
+
+    //ids
+    //Blind Pick = 430
+    //Draft Pick = 400
+    //Ranked Solo/Duo = 420
+    //Ranked Flex = 440
+
+    //Aram = 450
+
+    //Special (urf) = 900
 }
 
-let menu = false
+let menu = true
 
 // Connect to LCU event
 connector.on('connect', (data) => {
@@ -162,12 +309,16 @@ connector.on('connect', (data) => {
 
     setInterval(() => {
         get("/lol-lobby/v2/lobby").then(res => {
+            if (res.code == "ECONNREFUSED") {
+
+            }
             if (res.httpStatus == 404) {
                 if (!menu) {
                     mainMenu()
                     lobbyIds.length = 0
                     riotIds.length = 0
                     document.getElementById("find-match").style.display = "none"
+                    document.getElementById("leave").style.display = "none"
                     document.querySelectorAll(".player").forEach(e => {
                         e.remove()
                     })
@@ -177,11 +328,12 @@ connector.on('connect', (data) => {
             get("/lol-lobby/v2/lobby/members").then(res => {
                 if (menu) {
                     document.getElementById("find-match").style.display = "block"
+                    document.getElementById("leave").style.display = "block"
                 }
 
                 menu = false
 
-                document.querySelectorAll(".game").forEach(e => {
+                document.querySelectorAll(".cont").forEach(e => {
                     e.remove()
                 })
                 lobbyIds.forEach(id => {
@@ -214,8 +366,10 @@ connector.on('connect', (data) => {
                     lobbyIds.push(res[player].summonerId)
                     let percent = await get(`/lol-summoner/v1/summoners/${res[player].summonerId}`).then(res2 => res2.percentCompleteForNextLevel)
                     console.log(positions)
-                    createPlayer(res[player].isLeader ? res[player].summonerName + "👑" : res[player].summonerName, res[player].summonerIconId, res[player].summonerId, res[player].summonerLevel, percent, res[player].isLeader, res[player].firstPositionPreference, res[player].secondPositionPreference)
-                    positionRoles(res[player].firstPositionPreference, res[player].secondPositionPreference, res[player].summonerId)
+                    createPlayer(res[player].isLeader ? res[player].summonerName + "👑" : res[player].summonerName, res[player].summonerIconId, res[player].summonerId, res[player].summonerLevel, percent, res[player].isLeader, res[player].firstPositionPreference, res[player].secondPositionPreference).then(() => {
+                        positionRoles(res[player].firstPositionPreference, res[player].secondPositionPreference, res[player].summonerId)
+                    })
+
                 })
             })
         })
@@ -243,12 +397,24 @@ connector.on('connect', (data) => {
             document.getElementById("cancel").style.display = "none"
         })
     })
+
+    document.getElementById("leave").addEventListener("click", e => {
+        del("/lol-lobby/v2/lobby").then(res => {
+            if (!stat(res)) return
+            document.getElementById("find-match").style.display = "none"
+            document.getElementById("cancel").style.display = "none"
+            document.getElementById("leave").style.display = "none"
+        })
+    })
+
+    // console.log(config.hider)
+    if (config.hider) hider(0)
 })
 
 // Check if request status is ok
 const stat = (res) => {
     console.log(res.status)
-    return ((res.status == 204 || res.status == 201) ? true : false);
+    return ((res.status == 204 || res.status == 201 || res.status == 200) ? true : false);
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -271,8 +437,8 @@ const loadConfig = () => {
     })
 }
 
-// Start listening for the LCU client
-connector.start();
-
 // Load config
 loadConfig()
+
+// Start listening for the LCU client
+connector.start();

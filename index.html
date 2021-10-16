@@ -13,6 +13,7 @@
             outline: none;
             user-select: none;
             font-family: Poppins, sans-serif;
+            -webkit-user-drag: none;
         }
         
         body {
@@ -24,17 +25,19 @@
             display: flex;
             justify-content: center;
             width: 100vw;
-            align-items: flex-end;
+            align-items: center;
             height: 97.5vh;
         }
         
         #find-match {
+            display: none;
             font-family: inherit;
             position: absolute;
             color: white;
             background-color: rgba(0, 0, 0, 0);
             border: 0.2vw solid white;
             width: 18vw;
+            align-self: flex-end;
             height: 5vw;
             font-size: 1.4vw;
             font-weight: 700;
@@ -59,10 +62,29 @@
             background-color: rgba(0, 0, 0, 0);
             border: 0.2vw solid white;
             width: 5vw;
+            align-self: flex-end;
             height: 5vw;
             font-size: 1.4vw;
             font-weight: bold;
-            /* letter-spacing: 0.5vw; */
+            background-size: 200% 200%;
+            background-image: linear-gradient(to top, red 50%, transparent 50%);
+            cursor: pointer;
+        }
+        
+        #leave {
+            display: none;
+            align-self: flex-start;
+            justify-self: left;
+            font-family: inherit;
+            position: absolute;
+            color: white;
+            background-color: rgba(0, 0, 0, 0);
+            border: 0.2vw solid white;
+            width: 18vw;
+            height: 5vw;
+            font-size: 1.4vw;
+            font-weight: 700;
+            letter-spacing: 0.5vw;
             background-size: 200% 200%;
             background-image: linear-gradient(to top, red 50%, transparent 50%);
             cursor: pointer;
@@ -97,6 +119,12 @@
         }
         
         #cancel:hover {
+            color: black;
+            background-image: linear-gradient(to top, red 51%, transparent 50%);
+            background-position: 0 100%;
+        }
+        
+        #leave:hover {
             color: black;
             background-image: linear-gradient(to top, red 51%, transparent 50%);
             background-position: 0 100%;
@@ -138,16 +166,30 @@
             display: inline-block;
             text-align: center;
             margin: 0.45vw 0 0;
+            transition: filter 500ms ease-in-out
+        }
+        
+        .pos:hover {
+            cursor: pointer;
+            filter: invert(0%) sepia(0%) saturate(100%) hue-rotate(90deg) brightness(99%) contrast(50%);
+            transition: filter 500ms ease-in-out
         }
         
         .game {
             filter: invert(0%) sepia(44%) saturate(0%) hue-rotate(205deg) brightness(99%) contrast(104%);
-            margin: 0 5vw 0;
             align-self: center;
             justify-self: center;
             width: 10vw;
             height: 10vw;
             transition: filter 500ms ease-in-out
+        }
+        
+        .cont {
+            margin: 0 5vw 0;
+            align-self: center;
+            justify-self: center;
+            width: 10vw;
+            height: 10vw;
         }
         
         .game:hover {
@@ -159,36 +201,36 @@
         .lane {
             display: inline-block;
             border: 0.2vw solid white;
-            /* border-radius: 50%; */
             width: 5vw;
             height: 5vw;
             margin: 3.5vw 0.8vw 0;
         }
         
-        .lane img {
-            transition: filter 500ms ease-in-out
-        }
-        
-        .lane img:hover {
+        button {
+            font-family: inherit;
+            color: white;
+            background-color: rgba(0, 0, 0, 0);
+            border: 0.2vw solid white;
+            width: 10vw;
+            justify-self: center;
+            height: 4.5vw;
+            font-size: 1vw;
+            font-weight: 400;
+            letter-spacing: 0.3vw;
+            margin: 0.5vw 0;
+            background-size: 200% 200%;
+            background-image: linear-gradient(to top, lightgreen 50%, transparent 50%);
             cursor: pointer;
-            filter: invert(0%) sepia(0%) saturate(50%) hue-rotate(90deg) brightness(99%) contrast(50%);
-            transition: filter 500ms ease-in-out
-        }
-        /* .rc1 {
-            display: none;
-            background-color: rgb(10, 10, 10);
-            float: left;
-            margin: 5vw 0 5vw;
-            color: white;
+            pointer-events: auto;
+            transition: background 500ms ease-in-out, color 500ms ease-in-out;
         }
         
-        .rc2 {
-            display: none;
-            background-color: rgb(10, 10, 10);
-            box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2); 
-            margin: 5vw 0 5vw;
-            color: white;
-        } */
+        button:hover {
+            color: black;
+            background-image: linear-gradient(to top, lightgreen 51%, transparent 50%);
+            background-position: 0 100%;
+            transition: background 500ms ease-in-out, color 500ms ease-in-out;
+        }
     </style>
 </head>
 
@@ -197,6 +239,7 @@
         <p id="waiting">Waiting for League Client</p>
         <div id="container">
             <input type="button" class="trans" value="✕" id="cancel">
+            <input type="button" class="trans" value="Leave Lobby" id="leave">
             <input type="button" class="trans" value="FIND MATCH" id="find-match">
         </div>
     </div>

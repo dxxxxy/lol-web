@@ -408,7 +408,7 @@ connector.on('connect', (data) => {
     })
 
     // console.log(config.hider)
-    if (config.hider) hider(0)
+    hider(config.hider ? 0 : 5)
 })
 
 // Check if request status is ok

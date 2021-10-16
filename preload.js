@@ -300,7 +300,7 @@ const mainMenu = () => {
     //Special (urf) = 900
 }
 
-let menu = true
+let menu = false
 
 // Connect to LCU event
 connector.on('connect', (data) => {
